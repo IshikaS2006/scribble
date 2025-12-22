@@ -18,7 +18,8 @@ class RoomStore {
       adminId: null,
       publicStrokes: [],
       privateStrokes: {},
-      users: {}
+      users: {},
+      usersCode: {} // { userId: code }
     };
     return this.rooms[roomId];
   }
@@ -128,6 +129,27 @@ class RoomStore {
   isEmpty(roomId) {
     const room = this.rooms[roomId];
     return room ? Object.keys(room.users).length === 0 : true;
+  }
+
+  updateUserCode(roomId, userId, code) {
+    const room = this.rooms[roomId];
+    if (!room) return false;
+    
+    if (!room.usersCode) {
+      room.usersCode = {};
+    }
+    room.usersCode[userId] = code;
+    return true;
+  }
+
+  getUserCode(roomId, userId) {
+    const room = this.rooms[roomId];
+    return room?.usersCode?.[userId] || '';
+  }
+
+  getAllUsersCode(roomId) {
+    const room = this.rooms[roomId];
+    return room?.usersCode || {};
   }
 }
 

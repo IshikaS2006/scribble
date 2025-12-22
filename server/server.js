@@ -5,6 +5,10 @@ const cors = require('cors');
 const config = require('./config');
 const routes = require('./routes');
 const initializeSocketHandlers = require('./sockets');
+const connectDB = require('./config/database');
+
+// ✅ STEP 8: Connect to MongoDB
+connectDB();
 
 // Initialize Express app
 const app = express();

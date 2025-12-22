@@ -1,17 +1,31 @@
 const { v4: uuidv4 } = require('uuid');
 const roomStore = require('../utils/roomStore');
 const { generateAdminKey } = require('../utils/helpers');
+const Room = require('../models/Room');
 
 /**
  * Create a new room
  * @route POST /rooms
  */
-const createRoom = (req, res) => {
+const createRoom = async (req, res) => {
   try {
     const roomId = uuidv4();
     const adminKey = generateAdminKey();
     
+    // Create in memory
     roomStore.createRoom(roomId, adminKey);
+    
+    // ✅ STEP 8: Save to MongoDB
+    try {
+      await Room.create({
+        roomId,
+        adminKey,
+        publicStrokes: []
+      });
+      console.log(`💾 Room saved to DB: ${roomId}`);
+    } catch (dbError) {
+      console.log('⚠️ DB save failed, using in-memory only');
+    }
     
     console.log(`🏠 Room created: ${roomId}`);
     console.log(`🔑 Admin key: ${adminKey}`);
