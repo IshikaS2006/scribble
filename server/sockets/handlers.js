@@ -455,6 +455,44 @@ const handleCursorMove = (io, socket, { x, y }) => {
 };
 
 /**
+ * Handle live stroke update (broadcast to room for real-time viewing)
+ */
+const handleLiveStroke = (io, socket, strokeData) => {
+  const { roomId, userId } = socket.data;
+  
+  if (!roomId || !userId) {
+    return;
+  }
+  
+  if (!roomStore.roomExists(roomId)) {
+    return;
+  }
+  
+  // Broadcast live stroke to all other users in the room
+  socket.to(roomId).emit('live-stroke', { userId, stroke: strokeData });
+};
+
+/**
+ * Handle live stroke end (notify when drawing completes)
+ */
+const handleLiveStrokeEnd = (io, socket) => {
+  const { roomId, userId } = socket.data;
+  
+  if (!roomId || !userId) {
+    return;
+  }
+  
+  if (!roomStore.roomExists(roomId)) {
+    return;
+  }
+  
+  // Notify room that user finished their stroke
+  socket.to(roomId).emit('live-stroke-end', { userId });
+};
+
+/**
+ * Handle socket disconnect
+/**
  * Handle socket disconnect
  */
 const handleDisconnect = (io, socket) => {
