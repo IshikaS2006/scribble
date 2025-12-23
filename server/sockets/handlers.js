@@ -102,6 +102,7 @@ const handleJoinRoom = async (io, socket, { roomId, userId, adminKey }) => {
   
   console.log(`✅ User ${userId} joined room ${roomId} (Admin: ${socket.data.isAdmin})`);
   console.log(`📊 Room ${roomId} now has ${roomStore.getUserCount(roomId)} users`);
+  console.log(`👥 Users in room:`, Object.keys(roomStore.getRoom(roomId).users));
   
   // SEND EXPLICIT JOIN-ACK BACK TO CLIENT
   socket.emit("join-ack", {
@@ -497,7 +498,13 @@ const handleLiveStrokeEnd = (io, socket) => {
  */
 const handleDisconnect = (io, socket) => {
   const { roomId, userId } = socket.data;
-  console.log(`❌ Socket disconnected: ${socket.id} (User: ${userId}, Room: ${roomId})`);
+  
+  // Only log if user actually joined a room
+  if (roomId && userId) {
+    console.log(`❌ Socket disconnected: ${socket.id} (User: ${userId}, Room: ${roomId})`);
+  } else {
+    console.log(`🔌 Socket disconnected without joining: ${socket.id}`);
+  }
   
   if (roomId && userId && roomStore.roomExists(roomId)) {
     const userFullyDisconnected = roomStore.removeUserSocket(roomId, userId, socket.id);

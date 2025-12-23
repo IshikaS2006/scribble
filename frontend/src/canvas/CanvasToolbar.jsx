@@ -16,7 +16,9 @@ export default function CanvasToolbar({
   onTogglePromotionPanel,
   showPromotionPanel,
   onSaveAsPNG,
-  onLeaveRoom
+  onLeaveRoom,
+  viewingStudentId,
+  setViewingStudentId
 }) {
   const { isDark } = useTheme();
 
@@ -164,19 +166,31 @@ export default function CanvasToolbar({
           <span>Save</span>
         </button>
 
-        {/* Admin Student Panel */}
-        {isAdmin && Object.keys(allPrivateStrokes).length > 0 && (
-          <button
-            onClick={onTogglePromotionPanel}
-            className={`px-4 h-10 flex items-center gap-2 rounded-lg font-medium text-sm transition-all relative ${
-              isDark 
-                ? 'bg-[#5e5ce6] text-white hover:bg-[#4d4bdb]' 
-                : 'bg-blue-500 text-white hover:bg-blue-600'
-            }`}
-            title="View student work"
-          >
-            <span>View Students</span>
-          </button>
+        {/* Admin Student Selector */}
+        {isAdmin && (
+          <div className={`px-3 py-2 rounded-lg ${
+            isDark ? 'bg-[#1e1e1e]' : 'bg-gray-100'
+          }`}>
+            <select
+              value={viewingStudentId || 'own'}
+              onChange={(e) => setViewingStudentId(e.target.value === 'own' ? null : e.target.value)}
+              className={`px-3 py-1.5 rounded text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isDark 
+                  ? 'bg-[#2a2a2a] border border-gray-600 text-gray-300' 
+                  : 'bg-white border border-gray-300 text-gray-700'
+              }`}
+              title="Select which student's work to view"
+            >
+              <option value="own">View: Own</option>
+              {Object.keys(allPrivateStrokes).map(studentId => (
+                allPrivateStrokes[studentId].length > 0 && (
+                  <option key={studentId} value={studentId}>
+                    View: {studentId}
+                  </option>
+                )
+              ))}
+            </select>
+          </div>
         )}
 
         {/* Divider */}
@@ -185,8 +199,15 @@ export default function CanvasToolbar({
         {/* User Count & Role */}
         <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${
           isDark ? 'bg-[#1e1e1e] text-gray-300' : 'bg-gray-100 text-gray-700'
-        }`}>
-          <img src="/pngs/image.png" alt="User" className="w-5 h-5 object-contain" />
+        }`}
+        title={`${userCount} user${userCount !== 1 ? 's' : ''} connected`}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
           <span className="font-medium">{userCount}</span>
         </div>
 
@@ -222,4 +243,6 @@ CanvasToolbar.propTypes = {
   showPromotionPanel: PropTypes.bool.isRequired,
   onSaveAsPNG: PropTypes.func.isRequired,
   onLeaveRoom: PropTypes.func.isRequired,
+  viewingStudentId: PropTypes.string,
+  setViewingStudentId: PropTypes.func.isRequired,
 };

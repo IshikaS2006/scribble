@@ -25,6 +25,7 @@ export const useSocketEvents = ({
 
     const handleRoomJoined = (data) => {
       console.log('Room joined event received:', data);
+      console.log('Setting userCount to:', data.userCount);
       setRoomId(data.roomId);
       setUserId(data.userId);
       setIsAdmin(data.isAdmin);
@@ -76,6 +77,7 @@ export const useSocketEvents = ({
     };
 
     const handleUsersUpdate = ({ count }) => {
+      console.log('Users update received, count:', count);
       setUserCount(count);
     };
     

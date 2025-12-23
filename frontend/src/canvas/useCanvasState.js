@@ -29,6 +29,9 @@ export const useCanvasState = (initialRoomData) => {
   const [allUsersCode, setAllUsersCode] = useState({}); // { userId: code }
   const [viewingUserId, setViewingUserId] = useState(null); // null means viewing own code
   
+  // Stroke viewing state (for admin to select which student's strokes to view)
+  const [viewingStudentId, setViewingStudentId] = useState(null); // null means viewing all
+  
   // Cursor presence state
   const [userCursors, setUserCursors] = useState({}); // { userId: { x, y, name } }
   
@@ -94,6 +97,7 @@ export const useCanvasState = (initialRoomData) => {
     myCode, setMyCode,
     allUsersCode, setAllUsersCode,
     viewingUserId, setViewingUserId,
+    viewingStudentId, setViewingStudentId,
     userCursors, setUserCursors,
     userLiveStrokes, setUserLiveStrokes,
     camera, isDrawing, isPanning, isSelecting, isDragging, isResizing, resizeHandle, dragOffset, lastPanPos,

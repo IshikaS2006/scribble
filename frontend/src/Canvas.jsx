@@ -83,13 +83,14 @@ export default function Canvas({ onLeaveRoom, initialRoomData }) {
     };
 
     const render = () => {
-      // Admin sees ALL student strokes automatically (like IDE)
+      // Admin can select which student's strokes to view
       let revealedStrokes = [];
       if (state.isAdminRef.current && state.allPrivateStrokes) {
-        // Show all students' private strokes to admin in real-time
-        Object.values(state.allPrivateStrokes).forEach(studentStrokes => {
-          revealedStrokes = [...revealedStrokes, ...studentStrokes];
-        });
+        if (state.viewingStudentId) {
+          // Show only selected student's private strokes
+          revealedStrokes = state.allPrivateStrokes[state.viewingStudentId] || [];
+        }
+        // When viewingStudentId is null, show only admin's own work (no student strokes)
       }
 
       renderCanvas(ctx, canvas, {
@@ -946,6 +947,8 @@ export default function Canvas({ onLeaveRoom, initialRoomData }) {
         showPromotionPanel={state.showPromotionPanel}
         onSaveAsPNG={handleSaveAsPNG}
         onLeaveRoom={onLeaveRoom}
+        viewingStudentId={state.viewingStudentId}
+        setViewingStudentId={state.setViewingStudentId}
       />
 
       <StudentWorkPanel

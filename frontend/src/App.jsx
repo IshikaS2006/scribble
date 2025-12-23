@@ -19,6 +19,54 @@ function App() {
   const [isCreatingRoom, setIsCreatingRoom] = useState(false);
   const [roomData, setRoomData] = useState(null);
 
+  // Restore session from localStorage on mount
+  useEffect(() => {
+    const savedSession = localStorage.getItem('scribble-session');
+    if (savedSession) {
+      try {
+        const session = JSON.parse(savedSession);
+        if (session.roomId && session.userId) {
+          console.log('Restoring session from localStorage:', session);
+          setRoomId(session.roomId);
+          setUserId(session.userId);
+          setAdminKey(session.adminKey || '');
+          
+          // Set initial room data for Canvas
+          setRoomData({
+            roomId: session.roomId,
+            userId: session.userId,
+            isAdmin: !!session.adminKey
+          });
+          
+          setHasJoinedRoom(true); // Show canvas immediately
+          
+          // Auto-rejoin room
+          const joinData = {
+            roomId: session.roomId,
+            userId: session.userId,
+          };
+          if (session.adminKey) {
+            joinData.adminKey = session.adminKey;
+          }
+          
+          // Wait for socket connection before rejoining
+          if (socket.connected) {
+            socket.emit('joinRoom', joinData);
+          } else {
+            const handleReconnect = () => {
+              socket.emit('joinRoom', joinData);
+              socket.off('connect', handleReconnect);
+            };
+            socket.on('connect', handleReconnect);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to restore session:', err);
+        localStorage.removeItem('scribble-session');
+      }
+    }
+  }, []);
+
   useEffect(() => {
     socket.connect();
 
@@ -40,6 +88,15 @@ function App() {
       setRoomData({ roomId: joinedRoomId, isAdmin });
       setHasJoinedRoom(true);
       setError('');
+      
+      // Save session to localStorage
+      const session = {
+        roomId: joinedRoomId,
+        userId,
+        adminKey: adminKey || undefined
+      };
+      localStorage.setItem('scribble-session', JSON.stringify(session));
+      console.log('Session saved to localStorage');
     };
 
     const handleRoomJoined = (data) => {
@@ -66,7 +123,7 @@ function App() {
       socket.off('room-joined', handleRoomJoined);
       socket.off('error', handleError);
     };
-  }, []);
+  }, [userId, adminKey]);
 
   const handleJoinRoom = useCallback((e) => {
     e.preventDefault();
@@ -91,6 +148,14 @@ function App() {
 
     console.log('Emitting joinRoom with data:', joinData);
     socket.emit('joinRoom', joinData);
+    
+    // Save to localStorage for persistence
+    const session = {
+      roomId: joinData.roomId,
+      userId: joinData.userId,
+      adminKey: joinData.adminKey || undefined
+    };
+    localStorage.setItem('scribble-session', JSON.stringify(session));
   }, [roomId, userId, adminKey]);
 
   const createTestRoom = useCallback(async () => {
@@ -135,6 +200,11 @@ function App() {
     setRoomId('');
     setAdminKey('');
     setUserId('');
+    setRoomData(null);
+    
+    // Clear session from localStorage
+    localStorage.removeItem('scribble-session');
+    console.log('Session cleared from localStorage');
   }, []);
 
   if (!hasJoinedRoom) {
