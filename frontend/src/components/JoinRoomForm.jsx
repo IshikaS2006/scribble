@@ -75,8 +75,8 @@ function JoinRoomForm({
               onClick={createTestRoom}
               className={`w-full mb-6 px-4 py-2 rounded-lg font-medium text-sm transition-all shadow-md hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm ${
                 isDark 
-                  ? 'bg-gray-800/80 hover:bg-gray-900/90 text-white border border-gray-700/50 hover:border-gray-600' 
-                  : 'bg-gray-800/90 hover:bg-black text-white border border-gray-700/30 hover:border-gray-600'
+                  ? 'bg-gray-900/90 text-white border border-gray-700/50 hover:border-gray-600' 
+                  : 'bg-black text-white border border-gray-700/30 hover:border-gray-600'
               }`}
               disabled={!isConnected || isCreatingRoom}
             >
@@ -86,7 +86,7 @@ function JoinRoomForm({
                   Creating Room...
                 </span>
               ) : (
-                '✨ Create Test Room (as Interviewer)'
+                'Create Test Room (as Interviewer)'
               )}
             </button>
 
